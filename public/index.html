@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#9f1d20" />
+  <meta name="description" content="Mis Dekhli Chinese DZ — learn Chinese through structured HSK video lessons." />
+  <title>Mis Dekhli Chinese DZ</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="background-symbol symbol-one">学</div>
+  <div class="background-symbol symbol-two">中</div>
+
+  <header class="site-header">
+    <a href="#" class="brand" aria-label="Mis Dekhli Chinese DZ home">
+      <span class="brand-mark">中</span>
+      <span>
+        <strong>MIS DEKHLI</strong>
+        <small>CHINESE DZ</small>
+      </span>
+    </a>
+    <div class="header-actions">
+      <span id="sessionBadge" class="session-badge hidden"></span>
+      <button id="logoutButton" class="button button-ghost hidden" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main id="app" class="app-shell" aria-live="polite">
+    <section id="authView" class="auth-layout">
+      <div class="hero-panel">
+        <div class="eyebrow"><span></span> Structured Chinese learning</div>
+        <h1>Learn Chinese.<br /><em>Level by level.</em></h1>
+        <p>
+          Join a focused learning space for HSK 1, HSK 2, and HSK 3 students.
+          Your teacher approves every account and shares lessons designed for your level.
+        </p>
+        <div class="level-path" aria-label="Available levels">
+          <div class="level-step"><b>01</b><span>HSK 1<small>Foundation</small></span></div>
+          <div class="path-line"></div>
+          <div class="level-step"><b>02</b><span>HSK 2<small>Essential</small></span></div>
+          <div class="path-line"></div>
+          <div class="level-step"><b>03</b><span>HSK 3<small>Intermediate</small></span></div>
+        </div>
+        <div class="hero-quote">
+          <span class="quote-mark">“</span>
+          <p>千里之行，始于足下<br /><small>A journey of a thousand miles begins with a single step.</small></p>
+        </div>
+      </div>
+
+      <div class="auth-card-wrap">
+        <div class="auth-card">
+          <div class="auth-tabs" role="tablist">
+            <button class="auth-tab active" data-auth-tab="login" type="button">Sign in</button>
+            <button class="auth-tab" data-auth-tab="register" type="button">Register</button>
+          </div>
+
+          <form id="loginForm" class="auth-form">
+            <div class="form-heading">
+              <span class="mini-seal">欢迎</span>
+              <div><h2>Welcome back</h2><p>Continue your Chinese learning journey.</p></div>
+            </div>
+            <label class="field">
+              <span>Email address</span>
+              <input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com" required />
+            </label>
+            <label class="field">
+              <span>Password</span>
+              <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required />
+            </label>
+            <button class="button button-primary button-block" type="submit">
+              <span>Sign in</span><span aria-hidden="true">→</span>
+            </button>
+            <p class="form-note">Students can sign in while approval is pending to check their status.</p>
+          </form>
+
+          <form id="registerForm" class="auth-form hidden">
+            <div class="form-heading">
+              <span class="mini-seal">开始</span>
+              <div><h2>Create your account</h2><p>Your teacher will review your registration.</p></div>
+            </div>
+            <div class="field-row">
+              <label class="field">
+                <span>Full name</span>
+                <input id="registerName" type="text" autocomplete="name" placeholder="Your full name" minlength="2" maxlength="80" required />
+              </label>
+              <label class="field">
+                <span>Email address</span>
+                <input id="registerEmail" type="email" autocomplete="email" placeholder="you@example.com" required />
+              </label>
+            </div>
+            <div class="field-row">
+              <label class="field">
+                <span>Phone number</span>
+                <input id="registerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Example: 0550 00 00 00" minlength="8" maxlength="20" required />
+              </label>
+              <label class="field">
+                <span>Password</span>
+                <input id="registerPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required />
+              </label>
+            </div>
+            <fieldset class="level-picker">
+              <legend>Choose your level</legend>
+              <label><input type="radio" name="level" value="HSK1" checked /><span><b>HSK 1</b><small>Beginner</small></span></label>
+              <label><input type="radio" name="level" value="HSK2" /><span><b>HSK 2</b><small>Elementary</small></span></label>
+              <label><input type="radio" name="level" value="HSK3" /><span><b>HSK 3</b><small>Intermediate</small></span></label>
+            </fieldset>
+            <button class="button button-primary button-block" type="submit">
+              <span>Submit registration</span><span aria-hidden="true">→</span>
+            </button>
+          </form>
+        </div>
+        <p class="auth-footer">Mis Dekhli Chinese DZ · Learn with purpose</p>
+      </div>
+    </section>
+
+    <section id="studentView" class="dashboard hidden">
+      <div class="dashboard-top">
+        <div>
+          <div class="eyebrow"><span></span> Student space</div>
+          <h1 id="studentGreeting">你好, Student</h1>
+          <p id="studentSubtitle">Your personal Chinese learning dashboard.</p>
+        </div>
+        <div id="studentLevelBadge" class="level-emblem">HSK<span>1</span></div>
+      </div>
+
+      <div id="pendingPanel" class="status-panel pending hidden">
+        <div class="status-icon">待</div>
+        <div>
+          <span class="status-label">Registration pending</span>
+          <h2>Your account is waiting for teacher approval.</h2>
+          <p>You can return later and sign in again. Your lessons will appear here as soon as your teacher accepts your registration.</p>
+        </div>
+      </div>
+
+      <div id="approvedPanel" class="hidden">
+        <div class="section-heading">
+          <div><span class="section-kicker">Your curriculum</span><h2 id="lessonHeading">HSK 1 video lessons</h2></div>
+          <div id="videoCount" class="count-pill">0 lessons</div>
+        </div>
+        <div id="studentVideos" class="video-grid"></div>
+      </div>
+    </section>
+
+    <section id="teacherView" class="dashboard hidden">
+      <div class="dashboard-top teacher-top">
+        <div>
+          <div class="eyebrow"><span></span> Teacher control panel</div>
+          <h1>Manage your academy</h1>
+          <p>Approve students, organize levels, and upload video lessons from your computer.</p>
+        </div>
+        <div class="teacher-seal"><span>师</span><small>TEACHER</small></div>
+      </div>
+
+      <div id="statsGrid" class="stats-grid">
+        <article class="stat-card"><span class="stat-icon">学</span><div><small>Total students</small><strong id="statTotalStudents">0</strong></div></article>
+        <article class="stat-card"><span class="stat-icon">待</span><div><small>Pending approval</small><strong id="statPending">0</strong></div></article>
+        <article class="stat-card"><span class="stat-icon">✓</span><div><small>Approved</small><strong id="statApproved">0</strong></div></article>
+        <article class="stat-card"><span class="stat-icon">影</span><div><small>Video lessons</small><strong id="statVideos">0</strong></div></article>
+      </div>
+
+      <div class="dashboard-tabs" role="tablist">
+        <button class="dashboard-tab active" data-dashboard-tab="pending" type="button">Pending students <span id="pendingTabCount">0</span></button>
+        <button class="dashboard-tab" data-dashboard-tab="students" type="button">All students</button>
+        <button class="dashboard-tab" data-dashboard-tab="videos" type="button">Video library</button>
+      </div>
+
+      <div id="pendingTab" class="dashboard-panel">
+        <div class="section-heading compact">
+          <div><span class="section-kicker">Review queue</span><h2>Pending registrations</h2></div>
+        </div>
+        <div id="pendingStudents" class="management-list"></div>
+      </div>
+
+      <div id="studentsTab" class="dashboard-panel hidden">
+        <div class="section-heading compact">
+          <div><span class="section-kicker">Student management</span><h2>All registered students</h2></div>
+          <label class="search-box"><span>⌕</span><input id="studentSearch" type="search" placeholder="Search students..." /></label>
+        </div>
+        <div id="allStudents" class="management-list"></div>
+      </div>
+
+      <div id="videosTab" class="dashboard-panel hidden">
+        <div class="video-management-layout">
+          <form id="videoForm" class="video-form card-surface">
+            <div class="form-heading">
+              <span class="mini-seal">添加</span>
+              <div><h2>Upload a video lesson</h2><p>Choose a video from your computer for one HSK level.</p></div>
+            </div>
+            <label class="field"><span>Video title</span><input id="videoTitle" type="text" maxlength="120" placeholder="Example: HSK 1 — Chinese tones" required /></label>
+            <label class="field file-field">
+              <span>Video file from your computer</span>
+              <input id="videoFile" type="file" accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-m4v,.mp4,.webm,.ogg,.ogv,.mov,.m4v" required />
+              <small id="selectedVideoName" class="file-help">MP4 recommended · Maximum 100 MB</small>
+            </label>
+            <label class="field"><span>Level</span>
+              <select id="videoLevel" required><option value="HSK1">HSK 1</option><option value="HSK2">HSK 2</option><option value="HSK3">HSK 3</option></select>
+            </label>
+            <label class="field"><span>Description</span><textarea id="videoDescription" maxlength="500" rows="4" placeholder="What will students learn?"></textarea></label>
+            <button class="button button-primary button-block" type="submit"><span>Upload lesson</span><span>↑</span></button>
+          </form>
+
+          <div class="video-library-area">
+            <div class="section-heading compact">
+              <div><span class="section-kicker">Published content</span><h2>Video library</h2></div>
+              <label class="filter-select"><span>Level</span><select id="videoFilter"><option value="ALL">All levels</option><option value="HSK1">HSK 1</option><option value="HSK2">HSK 2</option><option value="HSK3">HSK 3</option></select></label>
+            </div>
+            <div id="teacherVideos" class="teacher-video-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toastRegion" class="toast-region" aria-live="assertive"></div>
+  <div id="confirmModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal-card">
+      <div class="modal-symbol">删</div>
+      <h2 id="confirmTitle">Confirm removal</h2>
+      <p id="confirmMessage">This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button id="confirmCancel" class="button button-ghost" type="button">Cancel</button>
+        <button id="confirmAction" class="button button-danger" type="button">Remove</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
