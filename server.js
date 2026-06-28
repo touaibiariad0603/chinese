@@ -33,7 +33,7 @@ const pool = new Pool({
   ssl: DATABASE_URL && !DATABASE_URL.includes('localhost')
     ? { rejectUnauthorized: false }
     : false,
-  max: 5,
+  max: Number(process.env.DB_POOL_MAX || (process.env.VERCEL ? 1 : 5)),
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 15000
 });
@@ -189,7 +189,11 @@ async function initializeDatabase() {
       `INSERT INTO users (id, name, email, phone, password_hash, role, status, level)
        VALUES ($1, $2, $3, NULL, $4, 'teacher', 'approved', NULL)`,
       [crypto.randomUUID(), process.env.TEACHER_NAME || 'Mis Dekhli Teacher', email, passwordHash]
-    );
+    ).catch((error) => {
+      // Multiple serverless instances can initialize at the same time.
+      // A duplicate teacher email is safe to ignore.
+      if (error.code !== '23505') throw error;
+    });
     console.log(`Teacher account created for ${email}`);
   }
 }
@@ -474,12 +478,20 @@ app.use((error, req, res, next) => {
   next(error);
 });
 
-app.use((_req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
-});
+// Vercel serves files in public/ through its CDN. Keep the local fallback
+// only for npm start / local development.
+if (!process.env.VERCEL) {
+  app.use((_req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+  });
+}
 
-app.listen(PORT, () => {
-  console.log(`Mis Dekhli Chinese DZ is running on port ${PORT}`);
-  console.log('Database: Neon PostgreSQL');
-  console.log('Video storage: Cloudinary authenticated assets');
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Mis Dekhli Chinese DZ is running on port ${PORT}`);
+    console.log('Database: Neon PostgreSQL');
+    console.log('Video storage: Cloudinary authenticated assets');
+  });
+}
+
+module.exports = app;

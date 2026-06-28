@@ -1,0 +1,6 @@
+node_modules
+.env
+*.zip
+npm-debug.log*
+start-windows.bat
+start.sh

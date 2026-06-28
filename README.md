@@ -1,50 +1,41 @@
-# Mis Dekhli Chinese DZ v1.3
+# Mis Dekhli Chinese DZ — Vercel Edition v1.5
 
-A responsive Chinese learning platform for HSK 1, HSK 2, and HSK 3.
+A responsive Chinese-learning platform for HSK 1, HSK 2, and HSK 3.
 
-## Included features
+## Features
 
 - Student registration with name, email, phone number, password, and HSK level
 - Teacher approval before lesson access
-- Teacher dashboard for approving, searching, and removing students
-- Teacher video uploads directly from the computer
-- HSK-restricted student lessons
-- Protected Cloudinary video delivery
+- Teacher student management and removal
+- Direct teacher video uploads from the computer to Cloudinary
 - Neon PostgreSQL persistence
+- Approved students see only videos for their assigned HSK level
+- Authenticated Cloudinary video delivery
+- Custom student video player with no native download button
+- Right-click and mobile long-press protection on lesson videos
+- Student-name watermark on playback
 - Responsive phone, tablet, and desktop interface
+- Vercel-compatible Express export
 
-## Free deployment
-
-Follow [FREE_DEPLOYMENT.md](FREE_DEPLOYMENT.md). The recommended free setup is:
-
-- Render Free for the Node.js app
-- Neon Free for the database
-- Cloudinary Free for videos
-
-## Local setup
-
-Local testing also uses Neon and Cloudinary.
-
-1. Copy `.env.example` to `.env`.
-2. Fill in `DATABASE_URL`, `CLOUDINARY_URL`, `JWT_SECRET`, and teacher credentials.
-3. Run:
+## Local development
 
 ```powershell
 npm install
+Copy-Item .env.example .env
 npm start
 ```
 
-4. Open `http://localhost:3000`.
+Open `http://localhost:3000`.
 
-## Security before launch
+Configure `.env` with Neon, Cloudinary, teacher credentials, and a strong `JWT_SECRET` before testing cloud features.
 
-- Use a long random `JWT_SECRET`.
-- Use a unique teacher password.
-- Never commit `.env`, Neon credentials, or the Cloudinary API secret.
-- Use the generated HTTPS Render address.
+## Vercel deployment
 
-## Video guidance
+See `VERCEL_DEPLOYMENT.md` for the complete procedure.
 
-- Maximum supported free-deployment upload: 100 MB per video.
-- MP4 with H.264 video and AAC audio is recommended for browser compatibility.
-- Compress long lessons before uploading to reduce storage and student bandwidth.
+
+## Video protection note
+
+The student player removes the browser's native media controls, blocks the normal right-click/long-press menu, disables picture-in-picture and remote playback where supported, and displays the signed-in student's name as a watermark.
+
+This prevents ordinary download actions, but no browser-only solution can guarantee that a determined user will never copy or screen-record a video.

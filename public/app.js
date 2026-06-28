@@ -132,20 +132,233 @@ function escapeInitials(name) {
   return String(name || '?').split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
 }
 
+function formatMediaTime(value) {
+  const totalSeconds = Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours) return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
+}
+
 function createVideoMedia(video) {
   const frame = document.createElement('div');
-  frame.className = 'video-frame';
+  frame.className = 'video-frame protected-video-frame';
+  frame.tabIndex = 0;
+  frame.setAttribute('aria-label', `Protected video lesson: ${video.title}`);
+
+  const stage = document.createElement('div');
+  stage.className = 'protected-video-stage';
+
   const player = document.createElement('video');
+  player.className = 'protected-video';
   player.src = video.streamUrl;
-  player.controls = true;
   player.preload = 'metadata';
   player.playsInline = true;
-  player.setAttribute('controlsList', 'nodownload');
+  player.draggable = false;
+  player.controls = false;
+  player.disablePictureInPicture = true;
+  player.disableRemotePlayback = true;
+  player.setAttribute('webkit-playsinline', '');
+  player.setAttribute('controlsList', 'nodownload noremoteplayback');
+  player.setAttribute('disablepictureinpicture', '');
+  player.setAttribute('disableremoteplayback', '');
+
+  const shield = document.createElement('div');
+  shield.className = 'video-interaction-shield';
+  shield.setAttribute('aria-hidden', 'true');
+
+  const watermark = document.createElement('div');
+  watermark.className = 'video-watermark';
+  watermark.textContent = `${state.user?.name || 'Student'} · Mis Dekhli Chinese DZ`;
+  watermark.setAttribute('aria-hidden', 'true');
+
+  const protectionLabel = document.createElement('div');
+  protectionLabel.className = 'video-protection-label';
+  protectionLabel.textContent = 'Protected lesson';
+  protectionLabel.setAttribute('aria-hidden', 'true');
+
+  const bigPlay = document.createElement('button');
+  bigPlay.className = 'video-big-play';
+  bigPlay.type = 'button';
+  bigPlay.textContent = '▶';
+  bigPlay.setAttribute('aria-label', 'Play video');
+
+  const controls = document.createElement('div');
+  controls.className = 'protected-video-controls';
+
+  const playButton = document.createElement('button');
+  playButton.className = 'video-control-button';
+  playButton.type = 'button';
+  playButton.textContent = '▶';
+  playButton.setAttribute('aria-label', 'Play video');
+
+  const currentTime = document.createElement('span');
+  currentTime.className = 'video-time';
+  currentTime.textContent = '0:00';
+
+  const progress = document.createElement('input');
+  progress.className = 'video-progress';
+  progress.type = 'range';
+  progress.min = '0';
+  progress.max = '1000';
+  progress.step = '1';
+  progress.value = '0';
+  progress.setAttribute('aria-label', 'Video progress');
+
+  const duration = document.createElement('span');
+  duration.className = 'video-time';
+  duration.textContent = '0:00';
+
+  const muteButton = document.createElement('button');
+  muteButton.className = 'video-control-button';
+  muteButton.type = 'button';
+  muteButton.textContent = '🔊';
+  muteButton.setAttribute('aria-label', 'Mute video');
+
+  const volume = document.createElement('input');
+  volume.className = 'video-volume';
+  volume.type = 'range';
+  volume.min = '0';
+  volume.max = '1';
+  volume.step = '0.05';
+  volume.value = '1';
+  volume.setAttribute('aria-label', 'Volume');
+
+  const expandButton = document.createElement('button');
+  expandButton.className = 'video-control-button';
+  expandButton.type = 'button';
+  expandButton.textContent = '⛶';
+  expandButton.setAttribute('aria-label', 'Expand video');
+
+  controls.append(playButton, currentTime, progress, duration, muteButton, volume, expandButton);
+  stage.append(player, shield, watermark, protectionLabel, bigPlay);
+  frame.append(stage, controls);
+
+  let previousVolume = 1;
+
+  const updatePlaybackUi = () => {
+    const playing = !player.paused && !player.ended;
+    playButton.textContent = playing ? '❚❚' : '▶';
+    playButton.setAttribute('aria-label', playing ? 'Pause video' : 'Play video');
+    bigPlay.classList.toggle('hidden', playing);
+    bigPlay.textContent = player.ended ? '↻' : '▶';
+    bigPlay.setAttribute('aria-label', player.ended ? 'Replay video' : 'Play video');
+  };
+
+  const updateTimeUi = () => {
+    currentTime.textContent = formatMediaTime(player.currentTime);
+    duration.textContent = formatMediaTime(player.duration);
+    progress.value = Number.isFinite(player.duration) && player.duration > 0
+      ? String(Math.round((player.currentTime / player.duration) * 1000))
+      : '0';
+  };
+
+  const togglePlayback = async () => {
+    try {
+      if (player.paused || player.ended) await player.play();
+      else player.pause();
+    } catch {
+      showToast('The video could not start. Tap play again.', 'error');
+    }
+  };
+
+  const closeExpanded = () => {
+    if (!frame.classList.contains('video-expanded')) return;
+    frame.classList.remove('video-expanded');
+    document.body.classList.remove('video-player-open');
+    expandButton.textContent = '⛶';
+    expandButton.setAttribute('aria-label', 'Expand video');
+  };
+
+  const toggleExpanded = () => {
+    const opening = !frame.classList.contains('video-expanded');
+    document.querySelectorAll('.video-frame.video-expanded').forEach((other) => {
+      if (other !== frame) other.classList.remove('video-expanded');
+    });
+    frame.classList.toggle('video-expanded', opening);
+    document.body.classList.toggle('video-player-open', opening);
+    expandButton.textContent = opening ? '✕' : '⛶';
+    expandButton.setAttribute('aria-label', opening ? 'Close expanded video' : 'Expand video');
+  };
+
+  bigPlay.addEventListener('click', (event) => {
+    event.stopPropagation();
+    togglePlayback();
+  });
+  playButton.addEventListener('click', togglePlayback);
+  stage.addEventListener('click', (event) => {
+    if (event.target !== bigPlay) togglePlayback();
+  });
+  progress.addEventListener('input', () => {
+    if (Number.isFinite(player.duration) && player.duration > 0) {
+      player.currentTime = (Number(progress.value) / 1000) * player.duration;
+    }
+  });
+  muteButton.addEventListener('click', () => {
+    if (player.muted || player.volume === 0) {
+      player.muted = false;
+      player.volume = previousVolume || 1;
+    } else {
+      previousVolume = player.volume || 1;
+      player.muted = true;
+    }
+  });
+  volume.addEventListener('input', () => {
+    player.muted = false;
+    player.volume = Number(volume.value);
+    if (player.volume > 0) previousVolume = player.volume;
+  });
+  expandButton.addEventListener('click', toggleExpanded);
+
+  player.addEventListener('loadedmetadata', updateTimeUi);
+  player.addEventListener('durationchange', updateTimeUi);
+  player.addEventListener('timeupdate', updateTimeUi);
+  player.addEventListener('play', updatePlaybackUi);
+  player.addEventListener('pause', updatePlaybackUi);
+  player.addEventListener('ended', updatePlaybackUi);
+  player.addEventListener('waiting', () => frame.classList.add('video-loading'));
+  player.addEventListener('playing', () => frame.classList.remove('video-loading'));
+  player.addEventListener('canplay', () => frame.classList.remove('video-loading'));
+  player.addEventListener('volumechange', () => {
+    const muted = player.muted || player.volume === 0;
+    muteButton.textContent = muted ? '🔇' : '🔊';
+    muteButton.setAttribute('aria-label', muted ? 'Unmute video' : 'Mute video');
+    volume.value = muted ? '0' : String(player.volume);
+  });
   player.addEventListener('error', () => {
     player.poster = '';
+    frame.classList.remove('video-loading');
     frame.classList.add('video-error');
   });
-  frame.appendChild(player);
+
+  frame.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeExpanded();
+      return;
+    }
+    if (event.target.matches('input, button')) return;
+    if (event.key === ' ' || event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      togglePlayback();
+    } else if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      player.currentTime = Math.max(0, player.currentTime - 5);
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      player.currentTime = Math.min(player.duration || player.currentTime + 5, player.currentTime + 5);
+    } else if (event.key.toLowerCase() === 'm') {
+      event.preventDefault();
+      muteButton.click();
+    }
+  });
+
+  ['contextmenu', 'dragstart', 'selectstart'].forEach((eventName) => {
+    frame.addEventListener(eventName, (event) => event.preventDefault());
+  });
+
+  updatePlaybackUi();
   return frame;
 }
 

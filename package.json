@@ -1,8 +1,8 @@
 {
   "name": "mis-dekhli-chinese-dz",
-  "version": "1.3.0",
+  "version": "1.5.0",
   "private": true,
-  "description": "HSK learning platform with teacher approval, phone registration, Neon database, and protected Cloudinary video uploads.",
+  "description": "Vercel-ready HSK learning platform with protected custom video playback, teacher approval, Neon PostgreSQL, and authenticated Cloudinary uploads.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
